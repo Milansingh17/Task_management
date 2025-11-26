@@ -1,21 +1,25 @@
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
+import dj_database_url
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
+# -----------------------
+# SECURITY
+# -----------------------
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # -----------------------
-# ALLOWED_HOSTS
+# ALLOWED HOSTS
 # -----------------------
-# In production, include Render backend URL and local dev hosts
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'task-management-4-bzj0.onrender.com',
-    '.onrender.com',  # Allows any subdomain on render.com
+    '.onrender.com',
 ]
 
 # -----------------------
@@ -29,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Third party apps
+    # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
@@ -79,21 +83,19 @@ WSGI_APPLICATION = 'task_management.wsgi.application'
 ASGI_APPLICATION = 'task_management.asgi.application'
 
 # -----------------------
-# Database
+# DATABASE
 # -----------------------
 DATABASES = {
-    'default': {
-        'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
-        'NAME': config('DB_NAME', default=BASE_DIR / 'db.sqlite3'),
-        'USER': config('DB_USER', default=''),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default=''),
-        'PORT': config('DB_PORT', default=''),
-    }
+    "default": dj_database_url.config(
+        default=config(
+            "DATABASE_URL",
+            default="postgresql://postgresql:euQgNKUCpWt8OT6OhoEZiN7oWQmJAf68@dpg-d4jgl7umcj7s73bhqnm0-a.oregon-postgres.render.com/postgresql_2lg4"
+        )
+    )
 }
 
 # -----------------------
-# Password Validation
+# Password Validators
 # -----------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -138,16 +140,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-    ],
-    'DEFAULT_PARSER_CLASSES': [
-        'rest_framework.parsers.JSONParser',
-    ],
 }
 
 # -----------------------
-# JWT
+# JWT Settings
 # -----------------------
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME', default=60, cast=int)),
@@ -158,15 +154,10 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 # -----------------------
-# CORS
+# CORS Settings
 # -----------------------
 CORS_ALLOW_CREDENTIALS = True
 
@@ -175,8 +166,8 @@ if DEBUG:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        "https:task-management-4-bzj0.onrender.com",   # Backend URL
-        "https://task-management-two-liard.vercel.app",  # Frontend URL
+        "https://task-management-4-bzj0.onrender.com",   # Backend
+        "https://task-management-two-liard.vercel.app",  # Frontend
     ]
 
 # -----------------------
