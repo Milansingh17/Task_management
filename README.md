@@ -1,27 +1,64 @@
-# Task Management Platform
+## Task Management Platform
 
-A full-stack task and workflow platform built with Django REST Framework and React. The product pairs secure JWT authentication with rich task CRUD operations, analytics, audit logging, role-aware views, and real-time collaboration through WebSockets. The UI ships with modern Tailwind styling, light/dark themes, and reusable components.
+A full-stack task and workflow platform built with **Django REST Framework** and **React**.  
+It provides secure JWT authentication, rich task CRUD, analytics, audit logging, role-aware views, and real-time collaboration via WebSockets with a modern Tailwind UI (light/dark mode).
+
+---
+
+## Quick Start
+
+1. **Clone & enter project**
+
+   ```bash
+   git clone <your-repo-url>
+   cd <project-root>
+   ```
+
+2. **Start backend**
+
+   ```bash
+   cd backend/task_management
+   python -m venv .venv
+   .venv\Scripts\activate          # Windows
+   pip install -r ../requirements.txt
+   python manage.py migrate
+   python manage.py runserver      # http://localhost:8000
+   ```
+
+3. **Start frontend**
+
+   ```bash
+   cd ../../frontend
+   npm install
+   npm start                       # http://localhost:3000
+   ```
+
+4. **Open app**
+
+   - Visit `http://localhost:3000`
+   - Register or log in
+   - Start creating and managing tasks in real time
 
 ---
 
 ## Feature Highlights
 
-- **Authentication & Security:** SimpleJWT login/register/logout, profile management, refresh token rotation, and guarded admin-only APIs.
-- **Task Engine:** Ownership-aware CRUD, filtering, sorting, search, manual drag-and-drop ordering, pagination, and status/priority toggles.
-- **Analytics:** Metrics (`/api/tasks/summary/`) and staff dashboards (`/api/tasks/admin/overview/`) with charts in the frontend.
-- **Audit & Activity:** Django signal–driven audit trail, dedicated `/api/logs/` endpoint, and UI timeline with color-coded changes.
-- **Realtime Collaboration:** Django Channels WebSocket stream (`/ws/tasks/`) pushing task mutations and summary deltas directly into the React dashboard.
-- **UX Enhancements:** Toast notifications, skeleton/loading states, form validation, dark mode, keyboard accessibility, and responsive layout.
+- **Authentication & Security**: SimpleJWT login/register/logout, profile management, refresh token rotation, admin-only APIs.
+- **Task Engine**: Ownership-aware CRUD, filtering, sorting, search, drag-and-drop ordering, pagination, status/priority toggles.
+- **Analytics**: `/api/tasks/summary/` metrics and staff dashboards at `/api/tasks/admin/overview/` with charts in the frontend.
+- **Audit & Activity**: Signal-driven audit trail with `/api/logs/` endpoint and a UI timeline.
+- **Real-Time Collaboration**: Django Channels WebSocket stream (`/ws/tasks/`) pushes task mutations and summary deltas into the React dashboard.
+- **UX Enhancements**: Toast notifications, skeleton/loading states, form validation, dark mode, keyboard accessibility, responsive layout.
 
 ---
 
 ## Architecture Overview
 
-- **Backend (`backend/`):** Django 5 + DRF exposes REST APIs, JWT auth, background signals, audit logging, admin analytics, and Channels WebSocket consumers.
-- **Frontend (`frontend/`):** React 18 app (Vite-like structure with CRA scripts) using React Router, Context for auth/theme, Tailwind CSS, Chart.js, and reusable UI components.
-- **Communication:** REST over HTTPS for CRUD + analytics, WebSockets for live task updates, Axios with interceptors for token refresh, and toast-based feedback on the client.
+- **Backend (`backend/`)**: Django 5 + DRF for REST APIs, JWT auth, background signals, audit logging, admin analytics, and Channels WebSocket consumers.
+- **Frontend (`frontend/`)**: React 18 app with React Router, Context for auth/theme, Tailwind CSS, Chart.js, and reusable UI components.
+- **Communication**: REST over HTTP(S) for CRUD + analytics, WebSockets for live task updates, Axios interceptors for token refresh, toast-based feedback in the client.
 
-```
+```text
 client (React) <--> Django REST API (tasks/auth/logs)
           ↘              ↗
            WebSocket (Channels) for live updates
@@ -31,7 +68,7 @@ client (React) <--> Django REST API (tasks/auth/logs)
 
 ## Project Structure
 
-```
+```text
 .
 ├─ backend/
 │  ├─ manage.py
@@ -60,30 +97,13 @@ client (React) <--> Django REST API (tasks/auth/logs)
 
 ---
 
-## Prerequisites
-
-- Python 3.11+
-- Node.js 18+ and npm
-- PostgreSQL (optional; SQLite works out of the box)
-
----
-
-## Backend Setup (Local)
-
-```bash
-cd backend/task_management
-python -m venv .venv
-.venv\Scripts\activate       # Windows
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver   # http://localhost:8000
-```
+## Configuration
 
 ### Backend Environment (`backend/task_management/.env`)
 
-Create the file from `.env.example`:
+Create `.env` (or copy from `.env.example` if present):
 
-```
+```text
 SECRET_KEY=change-me
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
@@ -102,19 +122,9 @@ REFRESH_TOKEN_LIFETIME=1440
 
 `psycopg2-binary` is already included in `requirements.txt`; adjust the DB\_\* values to match your server before running migrations.
 
----
-
-## Frontend Setup (Local)
-
-```bash
-cd frontend
-npm install
-npm start           # http://localhost:3000
-```
-
 ### Frontend Environment (`frontend/.env`)
 
-```
+```text
 REACT_APP_API_URL=http://localhost:8000/api
 REACT_APP_WS_URL=ws://localhost:8000
 ```
@@ -125,64 +135,12 @@ When running commands, ensure you are inside the correct folder (`frontend` for 
 
 ## Running the Full Stack (Local)
 
-1. Start the Django server (`python manage.py runserver`).
-2. In a separate terminal, run the React dev server (`npm start` inside `frontend`).
-3. Register a new account or login with existing credentials.
+1. Start the Django server: `python manage.py runserver` (inside `backend/task_management`).
+2. In a separate terminal, run the React dev server: `npm start` (inside `frontend`).
+3. Register or log in.
 4. Explore dashboard, analytics, admin panel, and activity log.
 
 ---
-
-## Production Deployment Notes
-
-### Backend (Render)
-
-- **Service type**: Python / Django.
-- **Build/start**:
-
-```bash
-pip install -r backend/requirements.txt
-cd backend/task_management
-gunicorn task_management.wsgi:application --bind 0.0.0.0:$PORT
-```
-
-- **Environment variables (Render → Settings → Environment)**:
-  - `SECRET_KEY` – strong random string.
-  - `DEBUG` – `False`.
-  - `DATABASE_URL` – Render Postgres URL (or your own).
-  - `ACCESS_TOKEN_LIFETIME` – e.g. `60`.
-  - `REFRESH_TOKEN_LIFETIME` – e.g. `1440`.
-
-The project expects the backend to be reachable at something like:
-
-- `https://task-management-4-bzj0.onrender.com`
-
-API routes are always under `/api/...`, for example:
-
-- `POST https://task-management-4-bzj0.onrender.com/api/auth/register/`
-- `POST https://task-management-4-bzj0.onrender.com/api/auth/login/`
-- `GET  https://task-management-4-bzj0.onrender.com/api/tasks/`
-
-If you see 404s such as `/auth/register/` (missing `/api`), check the frontend `REACT_APP_API_URL`.
-
-### Frontend (e.g. Vercel)
-
-- **Build command**: `npm run build`
-- **Output directory**: `frontend/build`
-- **Environment variables**:
-
-```bash
-REACT_APP_API_URL=https://task-management-4-bzj0.onrender.com/api
-REACT_APP_WS_URL=wss://task-management-4-bzj0.onrender.com
-```
-
-After setting these, rebuild and redeploy. In the browser DevTools Network tab, verify calls go to:
-
-- `/api/auth/register/`, `/api/auth/login/`
-- `/api/tasks/`, `/api/logs/`
-
-and that WebSocket connects to:
-
-- `wss://task-management-4-bzj0.onrender.com/ws/tasks/?token=<access_token>`
 
 ## API Highlights
 
@@ -205,22 +163,74 @@ Responses use JSON exclusively with consistent success/error envelopes.
 
 ---
 
+## Deployment Notes
+
+### Backend (Render example)
+
+- **Service type**: Python / Django
+- **Build/start**:
+
+  ```bash
+  pip install -r backend/requirements.txt
+  cd backend/task_management
+  gunicorn task_management.wsgi:application --bind 0.0.0.0:$PORT
+  ```
+
+- **Environment variables (Render → Settings → Environment)**:
+  - `SECRET_KEY` – strong random string
+  - `DEBUG` – `False`
+  - `DATABASE_URL` – Render Postgres URL (or your own)
+  - `ACCESS_TOKEN_LIFETIME` – e.g. `60`
+  - `REFRESH_TOKEN_LIFETIME` – e.g. `1440`
+
+The project expects the backend to be reachable at something like `https://task-management-4-bzj0.onrender.com`.
+
+API routes are always under `/api/...`, for example:
+
+- `POST https://task-management-4-bzj0.onrender.com/api/auth/register/`
+- `POST https://task-management-4-bzj0.onrender.com/api/auth/login/`
+- `GET  https://task-management-4-bzj0.onrender.com/api/tasks/`
+
+If you see 404s such as `/auth/register/` (missing `/api`), check the frontend `REACT_APP_API_URL`.
+
+### Frontend (Vercel example)
+
+- **Build command**: `npm run build`
+- **Output directory**: `frontend/build`
+- **Environment variables**:
+
+  ```bash
+  REACT_APP_API_URL=https://task-management-4-bzj0.onrender.com/api
+  REACT_APP_WS_URL=wss://task-management-4-bzj0.onrender.com
+  ```
+
+After setting these, rebuild and redeploy. In the browser DevTools Network tab, verify calls go to:
+
+- `/api/auth/register/`, `/api/auth/login/`
+- `/api/tasks/`, `/api/logs/`
+
+and that the WebSocket connects to:
+
+- `wss://task-management-4-bzj0.onrender.com/ws/tasks/?token=<access_token>`
+
+---
+
 ## Frontend Screens
 
-- **Login / Register:** Validation, accessible labels, secure credential storage.
-- **Dashboard:** Filters, search, pagination, drag-and-drop ordering, inline status switches, and real-time counters.
-- **Task Form:** Reusable create/edit experience with client-side validation.
-- **Analytics:** Chart.js visualizations for priority and status.
-- **Activity Log:** Paginated audit entries that explain what changed.
-- **Admin Panel:** Staff-only overview of trends, top contributors, and recent actions.
+- **Login / Register**: Validation, accessible labels, secure credential storage.
+- **Dashboard**: Filters, search, pagination, drag-and-drop ordering, inline status switches, and real-time counters.
+- **Task Form**: Reusable create/edit experience with client-side validation.
+- **Analytics**: Chart.js visualizations for priority and status.
+- **Activity Log**: Paginated audit entries that explain what changed.
+- **Admin Panel**: Staff-only overview of trends, top contributors, and recent actions.
 
 ---
 
 ## Testing & Quality
 
-- Backend unit tests: `python manage.py test`
-- Frontend tests (CRA): `npm test`
-- Formatting/linting relies on Django/DRF conventions and Tailwind class ordering.
+- Backend: `python manage.py test`
+- Frontend: `npm test`
+- Styling and structure follow Django/DRF conventions and Tailwind class ordering.
 
 ---
 
