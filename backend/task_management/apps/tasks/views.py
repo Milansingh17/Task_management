@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Case, When, IntegerField
 from django.shortcuts import get_object_or_404
 
 from .models import Task, TaskRoleAssignment
@@ -50,12 +50,38 @@ class TaskViewSet(viewsets.ModelViewSet):
         queryset = Task.objects.select_related('owner').prefetch_related('role_assignments')
 
         if user.is_superuser or user.has_perm('tasks.task_manage'):
-            return queryset.distinct()
-
-        return queryset.filter(
-            Q(owner=user) |
-            Q(role_assignments__user=user, role_assignments__is_active=True)
-        ).distinct()
+            base_queryset = queryset.distinct()
+        else:
+            base_queryset = queryset.filter(
+                Q(owner=user) |
+                Q(role_assignments__user=user, role_assignments__is_active=True)
+            ).distinct()
+        
+        # Always annotate priority_weight for potential priority ordering
+        base_queryset = base_queryset.annotate(
+            priority_weight=Case(
+                When(priority='High', then=3),
+                When(priority='Medium', then=2),
+                When(priority='Low', then=1),
+                default=0,
+                output_field=IntegerField()
+            )
+        )
+        
+        return base_queryset
+    
+    def filter_queryset(self, queryset):
+        """Override to handle custom priority ordering"""
+        queryset = super().filter_queryset(queryset)
+        
+        # Check if ordering by priority
+        ordering_param = self.request.query_params.get('ordering', '')
+        if ordering_param == 'priority':
+            return queryset.order_by('priority_weight', '-created_at')
+        elif ordering_param == '-priority':
+            return queryset.order_by('-priority_weight', '-created_at')
+        
+        return queryset
 
     def get_permissions(self):
         if self.action == 'admin_overview':

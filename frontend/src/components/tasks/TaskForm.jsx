@@ -22,6 +22,17 @@ const TaskForm = ({ initialData, onSubmit, loading, submitLabel = 'Create Task' 
         status: initialData.status || TASK_STATUS.PENDING,
         priority: initialData.priority || TASK_PRIORITY.MEDIUM,
       });
+      // Clear errors when initialData changes
+      setErrors({});
+    } else {
+      // Reset form when initialData is cleared
+      setFormData({
+        title: '',
+        description: '',
+        status: TASK_STATUS.PENDING,
+        priority: TASK_PRIORITY.MEDIUM,
+      });
+      setErrors({});
     }
   }, [initialData]);
 

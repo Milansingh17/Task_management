@@ -88,7 +88,9 @@ const EditTask = () => {
     );
   }
 
-  const isOwner = user?.id === task.owner;
+  // Handle both cases: owner as ID (number) or owner as object
+  const ownerId = typeof task.owner === 'object' ? task.owner?.id : task.owner;
+  const isOwner = user?.id === ownerId;
   const canManageAssignments = Boolean(
     task && (isOwner || user?.is_superuser || user?.can_manage_tasks)
   );

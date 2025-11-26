@@ -30,9 +30,12 @@ const ActivityLog = () => {
     try {
       const data = await logsAPI.getLogs({ page });
       setLogs(data.results || []);
-      setTotalPages(Math.ceil(data.count / 10));
+      const pageSize = 10; // Match backend PAGE_SIZE
+      setTotalPages(Math.max(1, Math.ceil((data.count || 0) / pageSize)));
     } catch (err) {
       toast.error('Failed to fetch activity logs');
+      setLogs([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }

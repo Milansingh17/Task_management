@@ -49,7 +49,9 @@ const Dashboard = () => {
 
       const data = await tasksAPI.getTasks(params);
       setTasks(data.results || []);
-      setTotalPages(Math.max(1, Math.ceil((data.count || 0) / DEFAULT_PAGE_SIZE)));
+      // Handle pagination - API should return count, but fallback to results length
+      const totalCount = data.count !== undefined ? data.count : (data.results?.length || 0);
+      setTotalPages(Math.max(1, Math.ceil(totalCount / DEFAULT_PAGE_SIZE)));
     } catch (err) {
       setError(err.message || 'Unable to load tasks');
       toast.error('Failed to fetch tasks');
