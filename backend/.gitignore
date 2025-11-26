@@ -1,0 +1,46 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django specific
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment variables
+*.env
+.env.*
+.envrc
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+coverage.xml
+
+# Migrations (optional)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
