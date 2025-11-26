@@ -11,10 +11,12 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 # ALLOWED_HOSTS
 # -----------------------
 # In production, include Render backend URL and local dev hosts
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,task-management-4-bzj0.onrender.com'
-).split(',')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'task-management-4-bzj0.onrender.com',
+    '.onrender.com',  # Allows any subdomain on render.com
+]
 
 # -----------------------
 # Installed Apps
