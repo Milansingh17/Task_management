@@ -41,8 +41,30 @@ def root_health(_request):
     return JsonResponse({"status": "ok", "message": "Task Management API"})
 
 
+def api_index(_request):
+    """Provide human-friendly guidance when someone browses to /api."""
+    return JsonResponse(
+        {
+            "message": "Task Management API",
+            "endpoints": {
+                "auth": {
+                    "register": {"url": "/api/auth/register/", "method": "POST"},
+                    "login": {"url": "/api/auth/login/", "method": "POST"},
+                },
+                "tasks": "/api/tasks/",
+                "logs": "/api/logs/",
+                "docs": {
+                    "swagger": "/swagger/",
+                    "redoc": "/redoc/",
+                },
+            },
+        }
+    )
+
+
 urlpatterns = [
     path('', root_health, name='root-health'),
+    path('api/', api_index, name='api-index'),
     path('admin/', admin.site.urls),
     
     # API Documentation
