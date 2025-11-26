@@ -1,56 +1,94 @@
 # Task Management Platform
 
-Full-stack task management system built with Django REST Framework and React. It delivers secure JWT authentication, rich task CRUD features, audit logging, analytics, manual drag-and-drop ordering, real-time WebSocket updates, and an admin control panel – all wrapped in a responsive Tailwind UI with light/dark themes.
+A full-stack task and workflow platform built with Django REST Framework and React. The product pairs secure JWT authentication with rich task CRUD operations, analytics, audit logging, role-aware views, and real-time collaboration through WebSockets. The UI ships with modern Tailwind styling, light/dark themes, and reusable components.
 
-## Highlights
-- SimpleJWT authentication with register/login/logout/profile flows
-- Task API (ModelViewSet + ModelSerializer) with ownership enforcement
-- Filtering by status/priority, search by title, ordering (including manual order), and page-number pagination
-- Analytics endpoint (`/api/tasks/summary/`) + admin overview (`/api/tasks/admin/overview/`)
-- Audit logs powered by Django signals (`post_save`, `pre_delete`, `post_delete`) with a paginated `/api/logs/` endpoint
-- Real-time task + summary updates over WebSockets (`/ws/tasks/`) via Django Channels
-- Drag & drop task ordering using `react-beautiful-dnd` persisted through the API
-- Activity log page, analytics dashboard with charts, and staff-only admin panel
-- Responsive React + Tailwind UI with reusable components, loading/error states, and dark mode
+---
+
+## Feature Highlights
+
+- **Authentication & Security:** SimpleJWT login/register/logout, profile management, refresh token rotation, and guarded admin-only APIs.
+- **Task Engine:** Ownership-aware CRUD, filtering, sorting, search, manual drag-and-drop ordering, pagination, and status/priority toggles.
+- **Analytics:** Metrics (`/api/tasks/summary/`) and staff dashboards (`/api/tasks/admin/overview/`) with charts in the frontend.
+- **Audit & Activity:** Django signal–driven audit trail, dedicated `/api/logs/` endpoint, and UI timeline with color-coded changes.
+- **Realtime Collaboration:** Django Channels WebSocket stream (`/ws/tasks/`) pushing task mutations and summary deltas directly into the React dashboard.
+- **UX Enhancements:** Toast notifications, skeleton/loading states, form validation, dark mode, keyboard accessibility, and responsive layout.
+
+---
+
+## Architecture Overview
+
+- **Backend (`backend/`):** Django 5 + DRF exposes REST APIs, JWT auth, background signals, audit logging, admin analytics, and Channels WebSocket consumers.
+- **Frontend (`frontend/`):** React 18 app (Vite-like structure with CRA scripts) using React Router, Context for auth/theme, Tailwind CSS, Chart.js, and reusable UI components.
+- **Communication:** REST over HTTPS for CRUD + analytics, WebSockets for live task updates, Axios with interceptors for token refresh, and toast-based feedback on the client.
+
+```
+client (React) <--> Django REST API (tasks/auth/logs)
+          ↘              ↗
+           WebSocket (Channels) for live updates
+```
+
+---
+
+## Project Structure
+
+```
+.
+├─ backend/
+│  ├─ manage.py
+│  ├─ task_management/        # Django project (settings, urls, asgi)
+│  └─ apps/...                # Tasks, logs, analytics, users
+├─ frontend/
+│  ├─ src/
+│  │  ├─ api/                 # Axios wrappers
+│  │  ├─ components/          # Auth, tasks, layout, common UI
+│  │  ├─ pages/               # Login, Register, Dashboard, Analytics, Admin
+│  │  └─ hooks/context/utils
+│  └─ public/
+├─ requirements.txt
+└─ README.md
+```
+
+---
 
 ## Tech Stack
-- **Backend:** Django 5, DRF, SimpleJWT, Channels, django-filter, drf-yasg
-- **Frontend:** React 18, React Router 6, Tailwind CSS, react-beautiful-dnd, react-chartjs-2, react-hot-toast
-- **Tooling:** Axios interceptors with refresh token handling, CORS, WebSocket helpers
 
-## Getting Started
+| Layer    | Stack                                                                                         |
+| -------- | --------------------------------------------------------------------------------------------- |
+| Backend  | Django 5, Django REST Framework, SimpleJWT, Django Channels, django-filter, drf-yasg          |
+| Frontend | React 18, React Router 6, Tailwind CSS, react-beautiful-dnd, react-chartjs-2, react-hot-toast |
+| Tooling  | Axios interceptors, WebSocket helpers, Python virtualenv, npm scripts                         |
 
-### Prerequisites
-- Python 3.11+ (matches Pip installation location)
+---
+
+## Prerequisites
+
+- Python 3.11+
 - Node.js 18+ and npm
+- PostgreSQL (optional; SQLite works out of the box)
 
-### Backend Setup
+---
+
+## Backend Setup
+
 ```bash
 cd backend/task_management
 python -m venv .venv
-.venv\Scripts\activate  # (Windows)
+.venv\Scripts\activate       # Windows
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py runserver
+python manage.py runserver   # http://localhost:8000
 ```
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm start
-```
+### Backend Environment (`backend/task_management/.env`)
 
-## Environment Variables
+Create the file from `.env.example`:
 
-### Backend (`.env` beside `manage.py`)
-Copy `backend/task_management/.env.example` and adjust values:
 ```
 SECRET_KEY=change-me
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
-# PostgreSQL configuration
+# Database (SQLite by default; uncomment to switch to Postgres)
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=task_management
 DB_USER=postgres
@@ -58,59 +96,90 @@ DB_PASSWORD=postgres
 DB_HOST=localhost
 DB_PORT=5432
 
-ACCESS_TOKEN_LIFETIME=60          # minutes
-REFRESH_TOKEN_LIFETIME=1440       # minutes
+ACCESS_TOKEN_LIFETIME=60
+REFRESH_TOKEN_LIFETIME=1440
 ```
 
-Requires the `psycopg2-binary` driver (already listed in `requirements.txt`). Update the DB_* values to match your server, run `python manage.py migrate`, and the project will use PostgreSQL instead of SQLite automatically. 
+`psycopg2-binary` is already included in `requirements.txt`; adjust the DB\_\* values to match your server before running migrations.
 
-### Frontend (`frontend/.env`)
+---
+
+## Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm start           # http://localhost:3000
+```
+
+### Frontend Environment (`frontend/.env`)
+
 ```
 REACT_APP_API_URL=http://localhost:8000/api
-REACT_APP_WS_URL=ws://localhost:8000   # optional override; defaults derived from API URL
+REACT_APP_WS_URL=ws://localhost:8000
 ```
 
-## Key API Endpoints
+When running commands, ensure you are inside the correct folder (`frontend` for npm, `backend/task_management` for Django) to avoid ENOENT errors.
 
-| Area | Method & Path | Notes |
-|------|---------------|-------|
-| Auth | `POST /api/auth/register/` | Returns user + tokens |
-|      | `POST /api/auth/login/` | JWT login |
-|      | `POST /api/auth/logout/` | Optional refresh blacklist |
-|      | `POST /api/auth/token/refresh/` | Refresh access |
-|      | `GET/PATCH /api/auth/profile/` | Manage current user |
-| Tasks | `GET/POST /api/tasks/` | Owner-scoped list/create with filtering, search, ordering, pagination |
-|       | `GET/PUT/PATCH/DELETE /api/tasks/{id}/` | CRUD (owner only) |
-|       | `GET /api/tasks/summary/` | Total/completed/pending/high priority |
-|       | `POST /api/tasks/reorder/` | Accepts `{"task_ids": [..]}` for drag/drop ordering |
-|       | `GET /api/tasks/admin/overview/` | Staff analytics with priority/status breakdown, top users, recent tasks |
-| Logs  | `GET /api/logs/` | Paginated audit trail (auth required) |
-| Realtime | `WS /ws/tasks/?token=<access>` | Streams `task_created/updated/deleted`, `task_summary`, `tasks_reordered` events |
+---
 
-Responses are JSON-only (DRF renderer limited to `JSONRenderer`) and leverage consistent success/error messaging.
+## Running the Full Stack
 
-## UI Pages
-- **Register / Login:** Form validation, toast feedback, secure token storage
-- **Dashboard:** Filters, search, pagination, drag/drop ordering, inline status toggles, live stats badge
-- **Create / Edit Task:** Reusable form component with validation
-- **Analytics:** Charts for status & priority plus summary metrics
-- **Activity Log:** Paginated audit entries with color-coded actions and diffs
-- **Admin Control Panel:** Staff-only overview, top contributors, recent tasks timeline
+1. Start the Django server (`python manage.py runserver`).
+2. In a separate terminal, run the React dev server (`npm start` inside `frontend`).
+3. Register a new account or login with existing credentials.
+4. Explore dashboard, analytics, admin panel, and activity log.
 
-## Audit Logging
-- Signals capture task create/update/delete, plus explicit `Status Changed` & `Priority Changed`
-- Data stored in `AuditLog` model and exposed via `/api/logs/`
-- Frontend renders structured change data with icons, badges, and timestamps
+---
 
-## Testing & Verification
-- `python manage.py test` (backend)
-- `npm test` (frontend CRA scripts)
-- Linting and formatting handled by project defaults (DRF conventions + Tailwind)
+## API Highlights
 
-## Real-Time Behavior
-- Every task mutation triggers signal-driven broadcasts + audit logs
-- Frontend WebSocket listener updates stats and refreshes the current page automatically
-- Drag & drop reorder triggers persisted ordering and syncs across clients
+| Area  | Method & Path                           | Description                            |
+| ----- | --------------------------------------- | -------------------------------------- |
+| Auth  | `POST /api/auth/register/`              | Create user and issue tokens           |
+|       | `POST /api/auth/login/`                 | Obtain JWT pair                        |
+|       | `POST /api/auth/logout/`                | Optional refresh blacklist             |
+|       | `POST /api/auth/token/refresh/`         | Rotate access token                    |
+|       | `GET/PATCH /api/auth/profile/`          | Retrieve or update current user        |
+| Tasks | `GET/POST /api/tasks/`                  | Filterable, searchable, paginated CRUD |
+|       | `GET/PUT/PATCH/DELETE /api/tasks/{id}/` | Owner-guarded detail operations        |
+|       | `POST /api/tasks/reorder/`              | Persist drag-and-drop ordering         |
+|       | `GET /api/tasks/summary/`               | Counts for analytics cards             |
+|       | `GET /api/tasks/admin/overview/`        | Staff-only insights                    |
+| Logs  | `GET /api/logs/`                        | Paginated audit trail                  |
+| WS    | `WS /ws/tasks/?token=<access>`          | Live task + summary events             |
 
-You're ready to run the stack locally with `npm start` + `python manage.py runserver`, explore Swagger docs at `/swagger/`, and manage tasks with live updates.
+Responses use JSON exclusively with consistent success/error envelopes.
 
+---
+
+## Frontend Screens
+
+- **Login / Register:** Validation, accessible labels, secure credential storage.
+- **Dashboard:** Filters, search, pagination, drag-and-drop ordering, inline status switches, and real-time counters.
+- **Task Form:** Reusable create/edit experience with client-side validation.
+- **Analytics:** Chart.js visualizations for priority and status.
+- **Activity Log:** Paginated audit entries that explain what changed.
+- **Admin Panel:** Staff-only overview of trends, top contributors, and recent actions.
+
+---
+
+## Testing & Quality
+
+- Backend unit tests: `python manage.py test`
+- Frontend tests (CRA): `npm test`
+- Formatting/linting relies on Django/DRF conventions and Tailwind class ordering.
+
+---
+
+## Real-Time & Audit Details
+
+- Django signals (`post_save`, `pre_delete`, `post_delete`) emit audit entries for every task mutation, including status/priority transitions.
+- Channels broadcasts structured payloads (`task_created`, `task_updated`, `task_summary`, `tasks_reordered`) consumed by the React WebSocket hook.
+- The React app reconciles incoming events to keep lists, counts, and analytics in sync without manual refresh.
+
+---
+
+## Ready for Development
+
+With both servers running, visit `http://localhost:3000`, review the built-in Swagger docs at `http://localhost:8000/swagger/`, and start managing tasks with real-time collaboration.

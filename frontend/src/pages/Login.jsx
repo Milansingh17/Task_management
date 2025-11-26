@@ -32,7 +32,7 @@ const Login = () => {
 
         {/* Footer */}
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          Task Management System © 2024
+          Task Management System @ 2025
         </p>
       </div>
     </div>

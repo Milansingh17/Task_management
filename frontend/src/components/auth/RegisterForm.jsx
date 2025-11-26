@@ -79,14 +79,14 @@ const RegisterForm = () => {
           name="first_name"
           value={formData.first_name}
           onChange={handleChange}
-          placeholder="John"
+          placeholder="Enter your first name"
         />
         <Input
           label="Last Name"
           name="last_name"
           value={formData.last_name}
           onChange={handleChange}
-          placeholder="Doe"
+          placeholder="Enter your last name"
         />
       </div>
 
@@ -96,7 +96,7 @@ const RegisterForm = () => {
         value={formData.username}
         onChange={handleChange}
         error={errors.username}
-        placeholder="johndoe"
+        placeholder="Enter a username"
         autoComplete="username"
       />
 
@@ -107,7 +107,7 @@ const RegisterForm = () => {
         value={formData.email}
         onChange={handleChange}
         error={errors.email}
-        placeholder="john@example.com"
+        placeholder="Enter your email address"
         autoComplete="email"
       />
 
@@ -118,7 +118,7 @@ const RegisterForm = () => {
         value={formData.password}
         onChange={handleChange}
         error={errors.password}
-        placeholder="Min. 8 characters"
+        placeholder="Enter a password (min. 8 characters)"
         autoComplete="new-password"
       />
 
@@ -129,7 +129,7 @@ const RegisterForm = () => {
         value={formData.password2}
         onChange={handleChange}
         error={errors.password2}
-        placeholder="Re-enter password"
+        placeholder="Re-enter your password"
         autoComplete="new-password"
       />
 
