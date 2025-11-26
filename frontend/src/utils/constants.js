@@ -1,4 +1,7 @@
-export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+// Normalize API base URL so it always includes `/api`
+const RAW_API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const NORMALIZED_API_BASE = RAW_API_BASE.replace(/\/+$/, ''); // strip trailing slashes
+export const API_URL = `${NORMALIZED_API_BASE}/api`;
 export const WS_TASK_PATH = '/ws/tasks/';
 export const DEFAULT_PAGE_SIZE = 10;
 
