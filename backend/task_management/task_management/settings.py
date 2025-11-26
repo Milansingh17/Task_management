@@ -6,9 +6,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# Application definition
+# -----------------------
+# ALLOWED_HOSTS
+# -----------------------
+# In production, include Render backend URL and local dev hosts
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1,task-management-4-bzj0.onrender.com'
+).split(',')
+
+# -----------------------
+# Installed Apps
+# -----------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -16,7 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     # Third party apps
     'rest_framework',
     'rest_framework_simplejwt',
@@ -24,13 +34,16 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'channels',
-    
+
     # Local apps
     'apps.authentication',
     'apps.tasks',
     'apps.audit',
 ]
 
+# -----------------------
+# Middleware
+# -----------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -63,7 +76,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'task_management.wsgi.application'
 ASGI_APPLICATION = 'task_management.asgi.application'
 
+# -----------------------
 # Database
+# -----------------------
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
@@ -75,7 +90,9 @@ DATABASES = {
     }
 }
 
-# Password validation
+# -----------------------
+# Password Validation
+# -----------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -83,13 +100,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# -----------------------
 # Internationalization
+# -----------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# -----------------------
+# Static & Media
+# -----------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -98,7 +119,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# REST Framework Configuration
+# -----------------------
+# REST Framework
+# -----------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -121,12 +144,14 @@ REST_FRAMEWORK = {
     ],
 }
 
-# JWT Configuration
+# -----------------------
+# JWT
+# -----------------------
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=config('ACCESS_TOKEN_LIFETIME', default=60, cast=int)),
     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=config('REFRESH_TOKEN_LIFETIME', default=1440, cast=int)),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': False,  # Set to False if token_blacklist app is not installed
+    'BLACKLIST_AFTER_ROTATION': False,
     'UPDATE_LAST_LOGIN': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
@@ -138,6 +163,9 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
+# -----------------------
+# CORS
+# -----------------------
 CORS_ALLOW_CREDENTIALS = True
 
 if DEBUG:
@@ -145,11 +173,13 @@ if DEBUG:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        "https://task-management-4-bzj0.onrender.com",
-        "https://task-management-two-liard.vercel.app",
+        "https://task-management-4-bzj0.onrender.com",   # Backend URL
+        "https://task-management-two-liard.vercel.app",  # Frontend URL
     ]
 
-# Swagger Settings
+# -----------------------
+# Swagger
+# -----------------------
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
@@ -161,7 +191,9 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
 }
 
+# -----------------------
 # Channels
+# -----------------------
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
