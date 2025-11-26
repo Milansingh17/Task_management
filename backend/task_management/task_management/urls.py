@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -35,7 +36,13 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
+def root_health(_request):
+    """Simple root endpoint so platform probes don't 404."""
+    return JsonResponse({"status": "ok", "message": "Task Management API"})
+
+
 urlpatterns = [
+    path('', root_health, name='root-health'),
     path('admin/', admin.site.urls),
     
     # API Documentation
