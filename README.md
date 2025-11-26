@@ -115,29 +115,8 @@ A modern, full-stack task and workflow management platform built with Django RES
    pip install -r ../requirements.txt
    ```
 
-3. **Configure backend environment**
 
-   Create `backend/task_management/.env`:
-
-   ```env
-   SECRET_KEY=your-secret-key-here
-   DEBUG=True
-   ALLOWED_HOSTS=localhost,127.0.0.1
-
-   # Database (PostgreSQL)
-   DB_ENGINE=django.db.backends.postgresql
-   DB_NAME=task_management
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   DB_HOST=localhost
-   DB_PORT=5432
-
-   # JWT Settings
-   ACCESS_TOKEN_LIFETIME=60
-   REFRESH_TOKEN_LIFETIME=1440
-   ```
-
-4. **Run database migrations**
+3. **Run database migrations**
 
    ```bash
    python manage.py migrate
@@ -150,14 +129,6 @@ A modern, full-stack task and workflow management platform built with Django RES
    npm install
    ```
 
-6. **Configure frontend environment**
-
-   Create `frontend/.env`:
-
-   ```env
-   REACT_APP_API_URL=http://localhost:8000/api
-   REACT_APP_WS_URL=ws://localhost:8000
-   ```
 
 ### Running the Application
 
