@@ -175,7 +175,7 @@ if DEBUG:
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        "https://task-management-4-bzj0.onrender.com",   # Backend URL
+        "https:task-management-4-bzj0.onrender.com",   # Backend URL
         "https://task-management-two-liard.vercel.app",  # Frontend URL
     ]
 
