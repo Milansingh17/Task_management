@@ -68,7 +68,7 @@ client (React) <--> Django REST API (tasks/auth/logs)
 
 ---
 
-## Backend Setup
+## Backend Setup (Local)
 
 ```bash
 cd backend/task_management
@@ -104,7 +104,7 @@ REFRESH_TOKEN_LIFETIME=1440
 
 ---
 
-## Frontend Setup
+## Frontend Setup (Local)
 
 ```bash
 cd frontend
@@ -123,7 +123,7 @@ When running commands, ensure you are inside the correct folder (`frontend` for 
 
 ---
 
-## Running the Full Stack
+## Running the Full Stack (Local)
 
 1. Start the Django server (`python manage.py runserver`).
 2. In a separate terminal, run the React dev server (`npm start` inside `frontend`).
@@ -131,6 +131,58 @@ When running commands, ensure you are inside the correct folder (`frontend` for 
 4. Explore dashboard, analytics, admin panel, and activity log.
 
 ---
+
+## Production Deployment Notes
+
+### Backend (Render)
+
+- **Service type**: Python / Django.
+- **Build/start**:
+
+```bash
+pip install -r backend/requirements.txt
+cd backend/task_management
+gunicorn task_management.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+- **Environment variables (Render → Settings → Environment)**:
+  - `SECRET_KEY` – strong random string.
+  - `DEBUG` – `False`.
+  - `DATABASE_URL` – Render Postgres URL (or your own).
+  - `ACCESS_TOKEN_LIFETIME` – e.g. `60`.
+  - `REFRESH_TOKEN_LIFETIME` – e.g. `1440`.
+
+The project expects the backend to be reachable at something like:
+
+- `https://task-management-4-bzj0.onrender.com`
+
+API routes are always under `/api/...`, for example:
+
+- `POST https://task-management-4-bzj0.onrender.com/api/auth/register/`
+- `POST https://task-management-4-bzj0.onrender.com/api/auth/login/`
+- `GET  https://task-management-4-bzj0.onrender.com/api/tasks/`
+
+If you see 404s such as `/auth/register/` (missing `/api`), check the frontend `REACT_APP_API_URL`.
+
+### Frontend (e.g. Vercel)
+
+- **Build command**: `npm run build`
+- **Output directory**: `frontend/build`
+- **Environment variables**:
+
+```bash
+REACT_APP_API_URL=https://task-management-4-bzj0.onrender.com/api
+REACT_APP_WS_URL=wss://task-management-4-bzj0.onrender.com
+```
+
+After setting these, rebuild and redeploy. In the browser DevTools Network tab, verify calls go to:
+
+- `/api/auth/register/`, `/api/auth/login/`
+- `/api/tasks/`, `/api/logs/`
+
+and that WebSocket connects to:
+
+- `wss://task-management-4-bzj0.onrender.com/ws/tasks/?token=<access_token>`
 
 ## API Highlights
 
