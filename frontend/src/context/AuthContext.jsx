@@ -40,12 +40,13 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await authAPI.register(userData);
       
-      localStorage.setItem('access_token', data.tokens.access);
-      localStorage.setItem('refresh_token', data.tokens.refresh);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Don't store tokens or set user - user needs to sign in manually
+      // localStorage.setItem('access_token', data.tokens.access);
+      // localStorage.setItem('refresh_token', data.tokens.refresh);
+      // localStorage.setItem('user', JSON.stringify(data.user));
       
-      setUser(data.user);
-      toast.success('Registration successful!');
+      // setUser(data.user);
+      toast.success('Registration successful! Please sign in to continue.');
       return { success: true };
     } catch (error) {
       const message = error.response?.data?.username?.[0] || 

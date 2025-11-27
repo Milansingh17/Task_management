@@ -67,7 +67,7 @@ const RegisterForm = () => {
     setLoading(false);
 
     if (result.success) {
-      navigate('/dashboard');
+      navigate('/login');
     }
   };
 
